@@ -1,0 +1,12 @@
+{
+    "server": {
+        "__port": "port on which the https server is going to listen on",
+        "port":   64646,
+        
+        "__max_timestamp_age": "max age of the req timestamp in seconds",
+        "max_timestamp_age":   10
+    },
+    "auth": {
+        "username" : "password"
+    }
+}

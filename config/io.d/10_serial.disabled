@@ -1,0 +1,12 @@
+
+var io_serial  = require(__lib + 'io_serialport.js');
+
+module.exports = function(bus, modules) {
+    return new io_serial(bus, "/dev/ttyACM0")(function(io) {
+        io.connect();
+        io.listen("act.led", function(msgtype, time, msg) {
+            var result = msg.color.substring(0, 1);
+            return result;
+        });
+    });
+};

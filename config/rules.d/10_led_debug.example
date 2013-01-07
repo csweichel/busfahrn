@@ -1,0 +1,31 @@
+
+module.exports = function(inference, bus, redis) {
+    
+    inference.rule("led_on").on(["interact.lr.button", "mobile.nfc.tag"]).when(function(msgtype, time, msg, proceed) {
+        redis.latest("act.led", function(err, res) {
+            var had_blue = res.some(function(e) {
+                return e.msg.color === "blue";
+            });
+            var had_green = res.some(function(e) {
+                return e.msg.color === "green";
+            });
+            
+            var color;
+            if(had_blue) {
+                color = "green";
+            } else if(had_green) {
+                color = "red";
+            } else {
+                color = "blue";
+            }
+            
+            switch(msg.state) {
+                case 'low':  proceed("off"); return;
+                default:     proceed(color); return null;
+            }
+        }, 3);
+    }).then(function(msgtype, time, msg, proceeding) {
+        bus.post("act.led", { color: proceeding });
+    }).enforce();
+    
+};

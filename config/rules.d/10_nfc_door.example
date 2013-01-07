@@ -1,0 +1,12 @@
+module.exports = function(inference, bus, history) {
+  
+    inference.rule("nfc_door").on("mobile.nfc.tag").when(function(msgtype, time, msg, proceed) {
+        switch(msg) {
+            case "door": proceed("red"); return;
+            default:     return null; // do nothing
+        }
+    }).then(function(msgtype, time, msg, proceeding) {
+        bus.post("act.led", { color: proceeding });
+    }).enforce();
+  
+};

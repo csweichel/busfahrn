@@ -1,0 +1,34 @@
+{
+  "name": "busfarhn",
+  "version": "0.1.0",
+  "author": "32leaves <info@32leav.es>",
+  "description": "a simple message bus a ton of IO backends, Redis support and an inference module",
+  "contributors": [ 
+    {
+      "name": "Christian Weichel",
+      "email": "cs@32leav.es"
+    } 
+  ],
+ "repository": {
+    "type": "git",
+    "url": "https://github.com/32leaves/busfarhn.git"
+  },
+  "keywords": [
+    "cli",
+    "bus",
+    "server"
+  ],
+  "dependencies" : {
+    "express" : "3.x",
+    "nano"    : "3.x",
+    "redis"   : ">=0.8.x",
+    "hiredis" : "*",
+    "request" : ">=2.x",
+    "optimist": "*",
+    "serialport" : "1.0.6"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.6"
+  }
+}
