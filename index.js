@@ -12,5 +12,10 @@ var main_bus = new Bus();
 var io = new IO(main_bus);
 io.load(__config + 'io.d/');
 
-var inference = new Inference(main_bus);
-inference.load(__dirname + '/config/rules.d/', io.get_module("history"));
+var history = io.get_module("history");
+if(history === undefined) {
+    console.log("inference support DISABLED as no history module is loaded");
+} else {
+    var inference = new Inference(main_bus);
+    inference.load(__dirname + '/config/rules.d/', history);
+}
