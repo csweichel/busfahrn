@@ -6,7 +6,7 @@ var Bus        = require('./lib/bus.js'),
 global.__lib    = __dirname + '/lib/';
 global.__config = __dirname + '/config/';
 
-
+console.time("[STARTUP] ");
 var main_bus = new Bus();
 
 var io = new IO(main_bus);
@@ -19,3 +19,6 @@ if(history === undefined) {
     var inference = new Inference(main_bus);
     inference.load(__dirname + '/config/rules.d/', history);
 }
+
+console.timeEnd("[STARTUP] ");
+
