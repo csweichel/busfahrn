@@ -1,0 +1,19 @@
+
+module.exports = function(inference, bus, redis) {
+    
+    inference.rule("profiles").on("profiles.enable").when(function(msgtype, time, msg, proceed) {
+        if(msg.hasOwnProperty("profile")) proceed(msg.profile);
+    }).then(function(msgtype, timestamp, msg, proceeding) {
+        switch(proceeding) {
+            case "work":
+                bus.post('act.outlets.lrDesk', { 'command' : 'on' });
+                bus.post('act.heating.central', { 'level' : '5' });
+                break;
+            case "off":
+                bus.post('act.outlets.lrDesk', { 'command' : 'off' });
+                bus.post('act.heating.central', { 'level' : '1' });
+                break;
+        }
+    }).enforce();
+    
+};
