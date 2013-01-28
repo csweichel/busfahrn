@@ -7,56 +7,75 @@ module.exports = function(bus, history) {
             'label' : 'Profiles',
             'widgets' : [
                 {
+                    'id'      : 'activeProfile',
+                    'label'   : 'Active profile',
+                    'color'   : 'purple',
+                    'size'    : 'double-vertical',
+                    'type'    : 'display',
+                    'message' : {
+                        'type' : 'profiles.enable',
+                        'unmarshal' : "function(type, time, msg) { return msg.profile; }"
+                    }
+                },
+                {
                     'id'      : 'home',
                     'label'   : 'Home',
+                    'icon'    : 'home',
                     'desc'    : 'enable the home profile',
+                    'color'   : 'yellow',
+                    'size'    : 'double',
                     'type'    : 'action',
                     'message' : {
-                        'type' : 'profiles.enable.home',
-                        'body' : {}
+                        'type' : 'profiles.enable',
+                        'body' : { profile: 'home' }
                     }
                 },
                 {
                     'id'      : 'work',
                     'label'   : 'Work',
+                    'icon'    : 'lab',
                     'desc'    : 'enable the work profile',
                     'type'    : 'action',
                     'message' : {
-                        'type' : 'profiles.enable.work',
-                        'body' : {}
+                        'type' : 'profiles.enable',
+                        'body' : { profile: 'work' }
                     }
                 },
                 {
                     'id'      : 'bed',
                     'label'   : 'Bed',
                     'desc'    : 'hit this before going to bed',
+                    'icon'    : 'moon',
+                    'color'   : 'blue',
                     'type'    : 'action',
                     'message' : {
-                        'type' : 'profiles.enable.bed',
-                        'body' : {}
+                        'type' : 'profiles.enable',
+                        'body' : { profile: 'bed' }
                     }
                 },
                 {
                     'id'      : 'sleep',
                     'label'   : 'Sleep',
+                    'icon'    : 'moon-2',
                     'desc'    : 'sleep, yeah right, who needs that ...',
+                    'color'   : 'blueDark',
                     'type'    : 'action',
                     'message' : {
-                        'type' : 'profiles.enable.sleep',
-                        'body' : {}
+                        'type' : 'profiles.enable',
+                        'body' : { profile: 'sleep' }
                     }
                 },
                 {
                     'id'      : 'off',
                     'label'   : 'Shutdown',
                     'desc'    : 'shut the place down',
+                    'color'   : 'red', 
                     'type'    : 'action',
                     'message' : {
-                        'type' : 'profiles.enable.off',
-                        'body' : {}
+                        'type' : 'profiles.enable',
+                        'body' : { profile: 'off' }
                     }
                 }
-                
             ]
         },
         {
@@ -64,8 +83,8 @@ module.exports = function(bus, history) {
             'label' : 'Heating',
             'widgets' : [
                 {
-                    'id' : 'level',
-                    'label' : 'Level',
+                    'id'      : 'level',
+                    'label'   : 'Level',
                     'type'    : 'range',
                     'message' : {
                         'type' : 'act.heating.central',
@@ -76,16 +95,57 @@ module.exports = function(bus, history) {
                         'from' : 0,
                         'to' : 8
                     }
+                }
+            ]
+        },
+        {
+            'id' : 'outlets',
+            'label' : 'Power outlets',
+            'widgets' : [
+                {
+                    'id'    : 'livingRoomDesk',
+                    'label' : 'Living room: desk',
+                    'type'  : 'display',
+                    'color' : 'green',
+                    'message' : {
+                        'type' : 'act.outlets.lrDesk',
+                        'marshal' : "function(html) { return { 'command' : (html.indexOf('on') === -1 ? 'on' : 'off') }; }",
+                        'unmarshal': 'function(type, time, msg) { return "is turned " + msg.command; }'
+                    }
                 },
                 {
-                    'id' : 'latestlevel',
-                    'label' : 'Current level',
-                    'type' : 'display',
+                    'id'    : 'livingRoomMachinery',
+                    'label' : 'Living room: homefab',
+                    'type'  : 'display',
+                    'color' : 'green',
                     'message' : {
-                        'type' : 'act.heating.central',
-                        'unmarshal': 'function(type, time, msg) { return "is set to " + msg.level; }'
+                        'type' : 'act.outlets.lrHomefab',
+                        'marshal' : "function(html) { return { 'command' : (html.indexOf('on') === -1 ? 'on' : 'off') }; }",
+                        'unmarshal': 'function(type, time, msg) { return "is turned " + msg.command; }'
                     }
-                }
+                },
+                {
+                    'id'    : 'hallwayProjector',
+                    'label' : 'Hallway: projector',
+                    'type'  : 'display',
+                    'color' : 'green',
+                    'message' : {
+                        'type' : 'act.outlets.hwProjector',
+                        'marshal' : "function(html) { return { 'command' : (html.indexOf('on') === -1 ? 'on' : 'off') }; }",
+                        'unmarshal': 'function(type, time, msg) { return "is turned " + msg.command; }'
+                    }
+                },
+                {
+                    'id'    : 'bedRoomLamp',
+                    'label' : 'Bed room: lamp',
+                    'type'  : 'display',
+                    'color' : 'green',
+                    'message' : {
+                        'type' : 'act.outlets.brLamp',
+                        'marshal' : "function(html) { return { 'command' : (html.indexOf('on') === -1 ? 'on' : 'off') }; }",
+                        'unmarshal': 'function(type, time, msg) { return "is turned " + msg.command; }'
+                    }
+                },
             ]
         }
         

@@ -23,7 +23,17 @@
                 <h3>{{label}}</h3>
                 {{#each widgets}}
                     {{#type 'action'}}
-                    <div id="action{{id}}" class="tile">
+                    {{#if icon}}
+                    <div id="action{{id}}" class="tile{{#if color}} bg-color-{{color}}{{/if}}{{#if size}} {{size}}{{/if}} icon">
+                        <div class="tile-content">
+                            <span style="font-size:64px;line-height: 64px; position: absolute; width: 64px; height: 64px; top: 50%; left: 50%; margin-left: -32px; margin-top: -32px;" class="icon-{{icon}}">&nbsp;</span>
+                        </div>
+                        <div class="brand">
+                            <div class="name">{{this.label}}</div>
+                        </div>
+                    </div>
+                    {{else}}
+                    <div id="action{{id}}" class="tile{{#if color}} bg-color-{{color}}{{/if}}{{#if size}} {{size}}{{/if}}">
                         <div class="tile-content">
                             <h4>{{this.label}}</h4>
                             {{this.desc}}
@@ -33,13 +43,15 @@
                             <div class="name">{{this.type}}</div>
                         </div>
                     </div>
+                    {{/if}}
+                    
                     <script>$(function() { $("#action{{this.id}}").click(function(value) {
                         socket.emit('action{{this.id}}', "");
                     }); })</script>
                     {{/type}}
                     
                     {{#type 'range'}}
-                    <div class="tile bg-color-orange">
+                    <div class="tile {{#if color}}bg-color-{{color}}{{else}}bg-color-orange{{/if}}{{#if size}} {{size}}{{/if}}">
                         <div class="tile-content">
                             <h4>{{this.label}}</h4>
                             {{this.desc}}
@@ -62,7 +74,7 @@
                     {{/type}}
                     
                     {{#type 'display'}}
-                    <div class="tile bg-color-blue">
+                    <div id="displayAction{{id}}" class="tile {{#if color}}bg-color-{{color}}{{else}}bg-color-blue{{/if}}{{#if size}} {{size}}{{/if}}">
                         <div class="tile-content">
                             <h4>{{this.label}}</h4>
                             {{this.desc}}<span id="display{{id}}">&nbsp;</span>
@@ -73,6 +85,12 @@
                                     $('#display{{id}}').html(unmarshal(data.type, data.time, data.msg));
                                 });
                             </script>
+                            {{#if message.marshal}}
+                            <script>$(function() { $("#displayAction{{this.id}}").click(function(value) {
+                                var marshal = {{{this.message.marshal}}};
+                                socket.emit('displayAction{{this.id}}', marshal( $("#display{{this.id}}").html() ));
+                            }); })</script>
+                            {{/if}}
                         </div>
                     </div>
                     {{/type}}
@@ -80,5 +98,6 @@
             </div>
         {{/each}}
         </div>
+
     </body>
 </html>
