@@ -2,22 +2,46 @@
     <head>
         <title>busfarhn</title>
         
-        <meta name="keywords" content="windows 8, modern style, modern ui, style, modern, css, framework">
+        <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=0.8, maximum-scale=1">
 
         <script src="/js/jquery.js"></script>
         <script src="/knob/jquery.knob.js"></script>
         <script src="/socket.io/socket.io.js"></script>
-
+        <script src="/metro/js/modern/tile-slider.js"></script>
+        <script src="/metro/js/modern/start-menu.js"></script>
+        
         <link href="/metro/css/modern.css" rel="stylesheet">
         <link href="/metro/css/theme-dark.css" rel="stylesheet">
         <link href="/metro/css/modern-responsive.css" rel="stylesheet">
         
+        <style>
+            [class^="icon-"], [class*=" icon-"] {
+                display: block;
+                font-size:64px;
+                line-height: 64px;
+                position: absolute;
+                width: 64px;
+                height: 64px;
+                top: 50%;
+                left: 50%;
+                margin-left: -32px;
+                margin-top: -32px;
+            }
+        </style>
         <script>
             var socket = io.connect();
         </script>
     </head>
     <body class="modern-ui">
+        <div class="page secondary fixed-header">
+        <div class="page-header ">
+            <div class="page-header-content">
+                <h1>busfarhn</h1>
+            </div>
+        </div>
+    
         <div class="page-region">
+        <div class="page-region-content tiles">
         {{#each config}}
              <div class="tile-group">
                 <h3>{{label}}</h3>
@@ -26,7 +50,7 @@
                     {{#if icon}}
                     <div id="action{{id}}" class="tile{{#if color}} bg-color-{{color}}{{/if}}{{#if size}} {{size}}{{/if}} icon">
                         <div class="tile-content">
-                            <span style="font-size:64px;line-height: 64px; position: absolute; width: 64px; height: 64px; top: 50%; left: 50%; margin-left: -32px; margin-top: -32px;" class="icon-{{icon}}">&nbsp;</span>
+                            <i class="icon-{{icon}}">&nbsp;</i>
                         </div>
                         <div class="brand">
                             <div class="name">{{this.label}}</div>
@@ -98,6 +122,8 @@
             </div>
         {{/each}}
         </div>
+        </div>
 
+        </div>
     </body>
 </html>
