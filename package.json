@@ -27,7 +27,8 @@
     "optimist": "*",
     "serialport" : "1.0.6",
     "hbs"     : "*",
-    "socket.io":"*"
+    "socket.io":"*",
+    "exec-sync" : "*"
   },
   "license": "MIT",
   "engines": {
