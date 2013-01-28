@@ -1,0 +1,6 @@
+[submodule "lib/aux/httpgui/MetroUICSS"]
+	path = lib/aux/httpgui/MetroUICSS
+	url = https://github.com/olton/Metro-UI-CSS.git
+[submodule "lib/aux/httpgui/jQuery-Knob"]
+	path = lib/aux/httpgui/jQuery-Knob
+	url = https://github.com/aterrien/jQuery-Knob.git

@@ -1,0 +1,93 @@
+var io_httpgui  = require(__lib + 'io_httpgui.js');
+
+module.exports = function(bus, history) {
+    return new io_httpgui(bus, [
+        {
+            'uid' : 'profiles',
+            'label' : 'Profiles',
+            'widgets' : [
+                {
+                    'id'      : 'home',
+                    'label'   : 'Home',
+                    'desc'    : 'enable the home profile',
+                    'type'    : 'action',
+                    'message' : {
+                        'type' : 'profiles.enable.home',
+                        'body' : {}
+                    }
+                },
+                {
+                    'id'      : 'work',
+                    'label'   : 'Work',
+                    'desc'    : 'enable the work profile',
+                    'type'    : 'action',
+                    'message' : {
+                        'type' : 'profiles.enable.work',
+                        'body' : {}
+                    }
+                },
+                {
+                    'id'      : 'bed',
+                    'label'   : 'Bed',
+                    'desc'    : 'hit this before going to bed',
+                    'type'    : 'action',
+                    'message' : {
+                        'type' : 'profiles.enable.bed',
+                        'body' : {}
+                    }
+                },
+                {
+                    'id'      : 'sleep',
+                    'label'   : 'Sleep',
+                    'desc'    : 'sleep, yeah right, who needs that ...',
+                    'type'    : 'action',
+                    'message' : {
+                        'type' : 'profiles.enable.sleep',
+                        'body' : {}
+                    }
+                },
+                {
+                    'id'      : 'off',
+                    'label'   : 'Shutdown',
+                    'desc'    : 'shut the place down',
+                    'type'    : 'action',
+                    'message' : {
+                        'type' : 'profiles.enable.off',
+                        'body' : {}
+                    }
+                }
+                
+            ]
+        },
+        {
+            'id' : 'heating',
+            'label' : 'Heating',
+            'widgets' : [
+                {
+                    'id' : 'level',
+                    'label' : 'Level',
+                    'type'    : 'range',
+                    'message' : {
+                        'type' : 'act.heating.central',
+                        'marshal' : "function(val) { return { 'level' : val }; }",
+                        'unmarshal' : "function(type, time, msg) { return msg.level; }"
+                    },
+                    'range' : {
+                        'from' : 0,
+                        'to' : 8
+                    }
+                },
+                {
+                    'id' : 'latestlevel',
+                    'label' : 'Current level',
+                    'type' : 'display',
+                    'message' : {
+                        'type' : 'act.heating.central',
+                        'unmarshal': 'function(type, time, msg) { return "is set to " + msg.level; }'
+                    }
+                }
+            ]
+        }
+        
+    ]).start(8888, false);
+};

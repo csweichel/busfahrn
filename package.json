@@ -25,7 +25,9 @@
     "hiredis" : "*",
     "request" : ">=2.x",
     "optimist": "*",
-    "serialport" : "1.0.6"
+    "serialport" : "1.0.6",
+    "hbs"     : "*",
+    "socket.io":"*"
   },
   "license": "MIT",
   "engines": {
