@@ -1,4 +1,6 @@
-var io_httpgui  = require(__lib + 'io_httpgui.js');
+var io_httpgui  = require(__lib + 'io_httpgui.js'),
+    Auth        = require(__lib + 'authenticator.js'),
+    conf        = require(__config + 'httpserver.json');
 
 module.exports = function(bus, history) {
     return new io_httpgui(bus, [
@@ -149,5 +151,11 @@ module.exports = function(bus, history) {
             ]
         }
         
-    ]).start(8888, false);
+    ])
+    /* // enable this to use the same authorization as the httpserver
+    .use_authentication(new Auth(conf.auth), function(req) {
+        return req.connection.remoteAddress == '127.0.0.1';
+    })
+    */
+    .start(8888, false);
 };
