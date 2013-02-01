@@ -5,16 +5,24 @@ var crypto  = require('crypto'),
     argv    = require('optimist').argv;
     
 function printUsage() {
-    console.log("usage: send_message -h|--host <host> -u|--user <user> -p|--password <pwd> -t|--type <msgtype> -m|--message <msg>");
+    console.log("usage: send_message (-h|--host <host> -u|--user <user> -p|--password <pwd> || -l|--local) -t|--type <msgtype> -m|--message <msg>");
     process.exit(-1);
 }
 
-var host = argv.host     || argv.h || printUsage();
-var user = argv.user     || argv.u || printUsage();
-var pass = argv.password || argv.p || printUsage();
+var host, user, pass;
+var local= argv.local    || argv.l || false;
+if(local) {
+    var config = require(__dirname + '/../config/httpserver.json');
+    host = "https://localhost:" + config.server.port;
+    user = Object.keys(config.auth)[0];
+    pass = config.auth[user];
+} else {
+    host = argv.host     || argv.h || printUsage();
+    user = argv.user     || argv.u || printUsage();
+    pass = argv.password || argv.p || printUsage();    
+}
 var msg  = argv.message  || argv.m || printUsage();
 var type = argv.type     || argv.t || printUsage();
-    
 
 var json;
 try {

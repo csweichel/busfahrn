@@ -5,7 +5,7 @@ var crypto  = require('crypto'),
     argv    = require('optimist').argv;
     
 function printUsage() {
-    console.error("usage: listen_message -h|--host <host> -u|--user <user> -p|--password <pwd> -t|--type <msgtype> [-o|--once <function>]");
+    console.error("usage: listen_message (-h|--host <host> -u|--user <user> -p|--password <pwd> || -l|--local) -t|--type <msgtype> [-o|--once <function>]");
     console.error("\t-h|--host <host>   \ta host address, including http/https and port if neccesary");
     console.error("\t-u|--user <user>   \tthe username to login with");
     console.error("\t-p|--password <pwd>\tthe users password");
@@ -17,9 +17,18 @@ function printUsage() {
     process.exit(-1);
 }
 
-var host = argv.host     || argv.h || printUsage();
-var user = argv.user     || argv.u || printUsage();
-var pass = argv.password || argv.p || printUsage();
+var host, user, pass;
+var local= argv.local    || argv.l || false;
+if(local) {
+    var config = require(__dirname + '/../config/httpserver.json');
+    host = "https://localhost:" + config.server.port;
+    user = Object.keys(config.auth)[0];
+    pass = config.auth[user];
+} else {
+    host = argv.host     || argv.h || printUsage();
+    user = argv.user     || argv.u || printUsage();
+    pass = argv.password || argv.p || printUsage();    
+}
 var type = argv.type     || argv.t || printUsage();
 var limit = argv.limit   || argv.l || 1;
 var map  = argv.map      || argv.m || "function(rows) { return rows; }";
