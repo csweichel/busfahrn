@@ -5,6 +5,7 @@
         <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=0.8, maximum-scale=1">
 
         <script src="/js/jquery.js"></script>
+        <script src="/js/jquery.timeago.js"></script>
         <script src="/knob/jquery.knob.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         
@@ -28,12 +29,37 @@
         </style>
         <script>
             var socket = io.connect();
+            socket.on('connect_failed', function () {
+                $('#socketStatus').html("OFFLINE"); 
+                $('#socketDetails').html("connection failed"); 
+            });
+            socket.on('connect', function() {
+                $('#socketStatus').html("Online");
+                $('#socketDetails').html(""); 
+                socket.on('disconnect', function(){ $('#socketStatus').html("OFFLINE"); });
+            });
+            
+            function updateLastMessageTime(time) {
+                var date = new Date(time);
+                $('#socketDetails').html("last activity: <time class=\"timeago\" datetime=\"" + date.toISOString() + "\">" + date.toISOString() + "</time>");
+                jQuery("time.timeago").timeago();
+            }
         </script>
     </head>
     <body class="modern-ui">
         <div class="page secondary fixed-header">
         <div class="page-header ">
             <div class="page-header-content">
+                <div class="user-login">
+                    <a href="#">
+                        <div class="name">
+                            <span class="first-name" id="socketStatus">offline</span>
+                            <span class="last-name" id="socketDetails">connecting</span>
+                        </div>
+                    </a>
+                </div>
+
+            
                 <h1>busfarhn</h1>
             </div>
         </div>
@@ -89,6 +115,7 @@
                                 socket.on('rangeUpdateView{{id}}', function (data) {
                                     var unmarshal = {{{this.message.unmarshal}}};
                                     $('#knob{{id}}').val(unmarshal(data.type, data.time, data.msg)).trigger('change');
+                                    updateLastMessageTime(data.time); 
                                 });
                             </script>
                         </div>
@@ -105,6 +132,7 @@
                                 socket.on('display{{id}}', function (data) {
                                     var unmarshal = {{{message.unmarshal}}};
                                     $('#display{{id}}').html(unmarshal(data.type, data.time, data.msg));
+                                    updateLastMessageTime(data.time); 
                                 });
                             </script>
                             {{#if message.marshal}}
