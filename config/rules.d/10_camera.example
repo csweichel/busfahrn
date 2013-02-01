@@ -9,7 +9,7 @@ module.exports = function(inference, bus, redis) {
         bus.post("act.camera.hallway", { });
     }).enforce();
     
-    inference.rule("camera.trigger").on("time.minute.1").when(function(msgtype, time, msg, proceed) {
+    inference.rule("camera.cleanup").on("time.minute.1").when(function(msgtype, time, msg, proceed) {
         if(new Date(time).getMinutes() === 0) proceed();
     }).then(function(msgtype, timestamp, msg, proceeding) {
         var camera_storage = __root + 'tmp/camera';
