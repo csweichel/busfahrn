@@ -1,0 +1,15 @@
+/*
+ * if you want to use this, make sure in your busfarhn installation
+ * is a folder tmp/camera to which the busfarhn process has writing permission
+ */
+
+var exec = require('child_process').exec;
+
+module.exports = function(bus, history) {
+    bus.listen("act.camera.hallway", function(type, time, msg) {
+        var filename = __root + '/tmp/camera/' + time + '.jpeg';
+        exec('streamer -o ' + filename, function callback(error, stdout, stderr){
+            if(error === null) bus.post("sensor.camera.hallway", { image: filename });
+        });
+    });
+};

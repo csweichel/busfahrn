@@ -149,9 +149,27 @@ module.exports = function(bus, history) {
                     }
                 },
             ]
-        }
+        },
+        {
+            'id' : 'surveillance',
+            'label' : 'Surveillance',
+            'widgets' : [
+                {
+                    'id'    : 'hallwayCamera',
+                    'type'  : 'display',
+                    'size'  : 'double double-vertical image',
+                    'message' : {
+                        'type' : 'sensor.camera.hallway',
+                        'unmarshal': 'function(type, time, msg) { return "<img src=\\"/camera/" + msg.image.replace(/.*\\//g, "") + "\\" />"; }'
+                    }
+                }
+                
+            ]
+        },
+        
         
     ])
+    .serve("/camera", __root + "/tmp/camera")
     /* // enable this to use the same authorization as the httpserver
     .use_authentication(new Auth(conf.auth), function(req) {
         return req.connection.remoteAddress == '127.0.0.1';
