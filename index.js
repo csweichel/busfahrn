@@ -3,6 +3,7 @@ var Bus        = require('./lib/bus.js'),
     IO         = require('./lib/io.js')
 ;
 
+global.__root   = __dirname;
 global.__lib    = __dirname + '/lib/';
 global.__config = __dirname + '/config/';
 
