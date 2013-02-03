@@ -162,8 +162,19 @@ module.exports = function(bus, history) {
                         'type' : 'sensor.camera.hallway',
                         'unmarshal': 'function(type, time, msg) { return "<img src=\\"/camera/" + msg.image.replace(/.*\\//g, "") + "\\" />"; }'
                     }
+                },
+                {
+                    'id'    : 'voice',
+                    'label' : 'Say something',
+                    'desc'  : '<br /><input type="text" id="inputVoice" /><br />',
+                    'type'  : 'display',
+                    'size'  : 'double',
+                    'message' : {
+                        'type' : 'act.audio.voice',
+                        'marshal': 'function(html) { var val = $("#inputVoice").val(); $("#inputVoice").val(""); return val.length == 0 ? null : { "text" : val }; }',
+                        'unmarshal': 'function(type, time, msg) { return "last said: " + msg.text; }'
+                    }
                 }
-                
             ]
         },
         

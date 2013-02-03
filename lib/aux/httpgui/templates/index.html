@@ -2,7 +2,7 @@
     <head>
         <title>busfarhn</title>
         
-        <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=0.8, maximum-scale=1">
+        <meta name="viewport" content="target-densitydpi=device-dpi, width=device-width, initial-scale=0.8, maximum-scale=3">
 
         <script src="/js/jquery.js"></script>
         <script src="/js/jquery.timeago.js"></script>
@@ -25,6 +25,12 @@
                 left: 50%;
                 margin-left: -32px;
                 margin-top: -32px;
+            }
+            input {
+                color: black !important;
+                width: 100%;
+                font-size: 150%;
+                height: 2em;
             }
         </style>
         <script>
@@ -126,7 +132,7 @@
                     <div id="displayAction{{id}}" class="tile {{#if color}}bg-color-{{color}}{{else}}bg-color-blue{{/if}}{{#if size}} {{size}}{{/if}}">
                         <div class="tile-content">
                             <h4>{{this.label}}</h4>
-                            {{this.desc}}<span id="display{{id}}">&nbsp;</span>
+                            {{{this.desc}}}<span id="display{{id}}">&nbsp;</span>
                             
                             <script>
                                 socket.on('display{{id}}', function (data) {
@@ -136,10 +142,16 @@
                                 });
                             </script>
                             {{#if message.marshal}}
-                            <script>$(function() { $("#displayAction{{this.id}}").click(function(value) {
+                            <script>
+                            function exec{{this.id}}() {
                                 var marshal = {{{this.message.marshal}}};
                                 socket.emit('displayAction{{this.id}}', marshal( $("#display{{this.id}}").html() ));
-                            }); })</script>
+                            }
+                            
+                            $(function() { $("#displayAction{{this.id}}").click(function(value) {
+                                exec{{this.id}}();
+                            }); })
+                            </script>
                             {{/if}}
                         </div>
                     </div>
