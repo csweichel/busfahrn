@@ -3,7 +3,11 @@ var exec = require('child_process').exec;
 
 module.exports = function(bus, history) {
     bus.listen("act.audio.voice", function(type, time, msg) {
-        var child = exec('festival --tts', function callback(error, stdout, stderr){});
+        var command = 'festival --tts';
+        if(msg.volume !== undefined)
+            command = 'amixer set Master ' + Math.floor(Math.max(0, Math.min(1, msg.volume)) * 65536) + '; ' + command;
+
+        var child = exec(command, function callback(error, stdout, stderr){});
         child.stdin.write(msg.text);
         child.stdin.end();
     });
