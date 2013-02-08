@@ -1,0 +1,15 @@
+
+module.exports = function(inference, bus, redis) {
+    
+    inference.rule("light").on(["sensors.senseless.hallway", "time.minute.1"]).when(function(msgtype, time, msg, proceed) {
+        if(msg.sensor == 'motion' && msg.status == 'triggered') proceed(true);
+        else if(msgtype == 'time.minute.1')                     proceed(false);
+    }).then(function(msgtype, timestamp, msg, proceeding) {
+        if(proceeding) {
+            bus.post('act.senseless.hallway', { 'command' : 'lamp_on' });
+        } else {
+            bus.post('act.senseless.hallway', { 'command' : 'lamp_off' });
+        }
+    }).enforce();
+    
+};
