@@ -165,6 +165,7 @@ int main(int argc, char** argv) {
     set_blocking (serialfd, 0);                // set no blocking
 #endif
     
+    hs_startup();
 
     char serialbuf[MAXBUFLEN];
     unsigned int serialbufpos = 0;
@@ -212,6 +213,8 @@ int main(int argc, char** argv) {
         }
         
     }
+
+    hs_shutdown();
 
     close(sockfd);
 

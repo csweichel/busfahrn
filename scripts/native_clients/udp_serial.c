@@ -207,6 +207,7 @@ int main(int argc, char** argv) {
     socklen_t addr_len;
 
     // add gracefull way to exit and disable PIR in the process
+    hs_startup();
 
     while(1) {
         // serial
@@ -238,6 +239,8 @@ int main(int argc, char** argv) {
         }
         
     }
+
+    hs_shutdown();
 
     close(sockfd);
 
