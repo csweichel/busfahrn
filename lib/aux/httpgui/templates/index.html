@@ -131,13 +131,18 @@
                     {{#type 'display'}}
                     <div id="displayAction{{id}}" class="tile {{#if color}}bg-color-{{color}}{{else}}bg-color-blue{{/if}}{{#if size}} {{size}}{{/if}}">
                         <div class="tile-content">
-                            <h4>{{this.label}}</h4>
-                            {{{this.desc}}}<span id="display{{id}}">&nbsp;</span>
+                            <h4>{{{this.label}}}</h4>
+                            <span id="display{{id}}">&nbsp; {{{this.desc}}}</span>
                             
                             <script>
                                 socket.on('display{{id}}', function (data) {
+                                    {{#if message.update}}
+                                    var update = {{{message.update}}};
+                                    update('#displayAction{{id}}', data.type, data.time, data.msg);
+                                    {{else}}
                                     var unmarshal = {{{message.unmarshal}}};
                                     $('#display{{id}}').html(unmarshal(data.type, data.time, data.msg));
+                                    {{/if}}
                                     updateLastMessageTime(data.time); 
                                 });
                             </script>
