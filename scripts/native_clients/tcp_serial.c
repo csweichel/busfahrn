@@ -77,10 +77,10 @@ void serial_write(char* msg, ...) {
 
     char buffer[1024];
     vsnprintf(buffer, sizeof(buffer), msg, args);
+    printf("SERIAL >> %s\n", buffer);
     #ifdef USE_SERIAL
     write(serialfd, buffer, strlen(buffer));
     #endif
-    printf("SERIAL >> %s\n", buffer);
 
     va_end( args );
 }
