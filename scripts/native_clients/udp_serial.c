@@ -235,7 +235,9 @@ int main(int argc, char** argv) {
             netbuf[numbytes] = '\0';
 
             printf("CMD <%s>\n", netbuf);
-            do_network(netbuf);
+            JSON_Value* json = json_parse_string(netbuf);
+            do_network(json, netbuf);
+            json_value_free(json);
         }
         
     }

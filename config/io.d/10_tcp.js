@@ -18,8 +18,10 @@ module.exports = function(bus, modules) {
         };
         
         ['demo', 'hallway', 'livingroom', 'kitchen', 'bedroom'].forEach(function(node) {
-            io.listen ("act.senseless." + node, marshal);
+            io.listen("act.senseless." + node, marshal);
+            io.listen("sensor.senseless." + node, marshal);
         });
+        io.listen(["act.heating.central", "sensor.heating.central"]);
         
     });
 };

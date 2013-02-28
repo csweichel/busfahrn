@@ -64,7 +64,9 @@ void network_write(char* msg, ...) {
 
     char buffer[1024];
     vsnprintf(buffer, sizeof(buffer), msg, args);
-    write(sockfd, msg, strlen(msg));
+    write(sockfd, buffer, strlen(buffer));
+
+    printf("NET >> %s\n", buffer);
 
     va_end( args );
 }
@@ -75,7 +77,10 @@ void serial_write(char* msg, ...) {
 
     char buffer[1024];
     vsnprintf(buffer, sizeof(buffer), msg, args);
-    write(serialfd, msg, strlen(msg));
+    #ifdef USE_SERIAL
+    write(serialfd, buffer, strlen(buffer));
+    #endif
+    printf("SERIAL >> %s\n", buffer);
 
     va_end( args );
 }
@@ -207,9 +212,9 @@ int main(int argc, char** argv) {
             netbuf[numbytes] = '\0';
 
             printf("CMD <%s>\n", netbuf);
-#ifdef USE_SERIAL
-            do_network(netbuf);
-#endif
+            JSON_Value* json = json_parse_string(netbuf);
+            do_network(json, netbuf);
+            json_value_free(json);
         }
         
     }
