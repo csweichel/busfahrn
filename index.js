@@ -7,6 +7,10 @@ global.__root   = __dirname;
 global.__lib    = __dirname + '/lib/';
 global.__config = __dirname + '/config/';
 
+process.on('uncaughtException', function(err) {
+  console.log(err);
+});
+
 console.time("[STARTUP] ");
 var main_bus = new Bus();
 
