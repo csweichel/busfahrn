@@ -2,7 +2,15 @@ var io_httpgui  = require(__lib + 'io_httpgui.js'),
     Auth        = require(__lib + 'authenticator.js'),
     conf        = require(__config + 'httpserver.json');
 
+
 module.exports = function(bus, history) {
+    var outlet_marshal = function(ischecked) {
+        return { 'command' : (ischecked ? 'on' : 'off') };
+    };
+    var outlet_unmarshal = function(type, time, msg) {
+        return msg.command == "on";
+    };
+    
     return new io_httpgui(bus, [
         {
             'uid' : 'profiles',
@@ -14,10 +22,7 @@ module.exports = function(bus, history) {
                     'color'   : 'purple',
                     'size'    : 'double-vertical',
                     'type'    : 'display',
-                    'message' : {
-                        'type' : 'profiles.enable',
-                        'unmarshal' : "function(type, time, msg) { return msg.profile; }"
-                    }
+                    'message' : { 'type' : 'profiles.enable', 'unmarshal' : function(type, time, msg) { return msg.profile; } }
                 },
                 {
                     'id'      : 'home',
@@ -27,10 +32,7 @@ module.exports = function(bus, history) {
                     'color'   : 'yellow',
                     'size'    : 'double',
                     'type'    : 'action',
-                    'message' : {
-                        'type' : 'profiles.enable',
-                        'body' : { profile: 'home' }
-                    }
+                    'message' : { 'type' : 'profiles.enable', 'body' : { profile: 'home' } }
                 },
                 {
                     'id'      : 'work',
@@ -38,10 +40,7 @@ module.exports = function(bus, history) {
                     'icon'    : 'lab',
                     'desc'    : 'enable the work profile',
                     'type'    : 'action',
-                    'message' : {
-                        'type' : 'profiles.enable',
-                        'body' : { profile: 'work' }
-                    }
+                    'message' : { 'type' : 'profiles.enable', 'body' : { profile: 'work' } }
                 },
                 {
                     'id'      : 'bed',
@@ -50,10 +49,7 @@ module.exports = function(bus, history) {
                     'icon'    : 'moon',
                     'color'   : 'blue',
                     'type'    : 'action',
-                    'message' : {
-                        'type' : 'profiles.enable',
-                        'body' : { profile: 'bed' }
-                    }
+                    'message' : { 'type' : 'profiles.enable', 'body' : { profile: 'bed' } }
                 },
                 {
                     'id'      : 'sleep',
@@ -62,21 +58,15 @@ module.exports = function(bus, history) {
                     'desc'    : 'sleep, yeah right, who needs that ...',
                     'color'   : 'blueDark',
                     'type'    : 'action',
-                    'message' : {
-                        'type' : 'profiles.enable',
-                        'body' : { profile: 'sleep' }
-                    }
+                    'message' : { 'type' : 'profiles.enable', 'body' : { profile: 'sleep' } }
                 },
                 {
                     'id'      : 'off',
                     'label'   : 'Shutdown',
                     'desc'    : 'shut the place down',
-                    'color'   : 'red', 
+                    'color'   : 'darken', 
                     'type'    : 'action',
-                    'message' : {
-                        'type' : 'profiles.enable',
-                        'body' : { profile: 'off' }
-                    }
+                    'message' : { 'type' : 'profiles.enable', 'body' : { profile: 'off' } }
                 }
             ]
         },
@@ -90,13 +80,10 @@ module.exports = function(bus, history) {
                     'type'    : 'range',
                     'message' : {
                         'type' : 'act.heating.central',
-                        'marshal' : "function(val) { return { 'level' : val }; }",
-                        'unmarshal' : "function(type, time, msg) { return msg.level; }"
+                        'marshal' : function(val) { return { 'level' : val }; },
+                        'unmarshal' : function(type, time, msg) { return msg.level; }
                     },
-                    'range' : {
-                        'from' : 0,
-                        'to' : 8
-                    }
+                    'range' : { 'from' : 0, 'to' : 8 }
                 }
             ]
         },
@@ -105,48 +92,32 @@ module.exports = function(bus, history) {
             'label' : 'Power outlets',
             'widgets' : [
                 {
-                    'id'    : 'livingRoomDesk',
-                    'label' : 'Living room: desk',
-                    'type'  : 'display',
-                    'color' : 'green',
-                    'message' : {
-                        'type' : 'act.outlets.lrDesk',
-                        'marshal' : "function(html) { return { 'command' : (html.indexOf('on') === -1 ? 'on' : 'off') }; }",
-                        'unmarshal': 'function(type, time, msg) { return "is turned " + msg.command; }'
-                    }
+                    'id'    : 'livingRoom',
+                    'label' : 'Living room',
+                    'type'  : 'switches',
+                    messages: [
+                        { 'label': 'Audio',     type: 'act.outlets.lr.audio',     marshal: outlet_marshal, unmarshal: outlet_unmarshal },
+                        { 'label': 'Desk',      type: 'act.outlets.lr.desk',      marshal: outlet_marshal, unmarshal: outlet_unmarshal },
+                        { 'label': 'Workspace', type: 'act.outlets.lr.workspace', marshal: outlet_marshal, unmarshal: outlet_unmarshal },
+                    ]
                 },
                 {
-                    'id'    : 'livingRoomMachinery',
-                    'label' : 'Living room: homefab',
-                    'type'  : 'display',
-                    'color' : 'green',
-                    'message' : {
-                        'type' : 'act.outlets.lrHomefab',
-                        'marshal' : "function(html) { return { 'command' : (html.indexOf('on') === -1 ? 'on' : 'off') }; }",
-                        'unmarshal': 'function(type, time, msg) { return "is turned " + msg.command; }'
-                    }
+                    'id'    : 'hallwaySwitches',
+                    'label' : 'Hallway',
+                    'type'  : 'switches',
+                    messages: [
+                        { 'label': 'Lamp',      type: 'act.outlets.hw.lamp',      marshal: outlet_marshal, unmarshal: outlet_unmarshal },
+                        { 'label': 'Projector', type: 'act.outlets.lr.projector', marshal: outlet_marshal, unmarshal: outlet_unmarshal },
+                    ]
                 },
                 {
-                    'id'    : 'hallwayProjector',
-                    'label' : 'Hallway: projector',
-                    'type'  : 'display',
-                    'color' : 'green',
-                    'message' : {
-                        'type' : 'act.outlets.hwProjector',
-                        'marshal' : "function(html) { return { 'command' : (html.indexOf('on') === -1 ? 'on' : 'off') }; }",
-                        'unmarshal': 'function(type, time, msg) { return "is turned " + msg.command; }'
-                    }
-                },
-                {
-                    'id'    : 'bedRoomLamp',
-                    'label' : 'Bed room: lamp',
-                    'type'  : 'display',
-                    'color' : 'green',
-                    'message' : {
-                        'type' : 'act.outlets.brLamp',
-                        'marshal' : "function(html) { return { 'command' : (html.indexOf('on') === -1 ? 'on' : 'off') }; }",
-                        'unmarshal': 'function(type, time, msg) { return "is turned " + msg.command; }'
-                    }
+                    'id'    : 'bedroomSwitches',
+                    'label' : 'Bedroom',
+                    'type'  : 'switches',
+                    messages: [
+                        { 'label': 'Small lamp', type: 'act.outlets.br.smalllamp', marshal: outlet_marshal, unmarshal: outlet_unmarshal },
+                        { 'label': 'Main light', type: 'act.outlets.br.mainlamp',  marshal: outlet_marshal, unmarshal: outlet_unmarshal },
+                    ]
                 },
             ]
         },
@@ -177,7 +148,23 @@ module.exports = function(bus, history) {
                 }
             ]
         },
-        
+        {
+            'id' : 'fitness',
+            'label' : 'Fitness',
+            'widgets' : [
+                {
+                    'id'    : 'fitnessHallway',
+                    'label' : 'Hallway SenseLamp',
+                    'desc'  : 'is DEAD',
+                    'type'  : 'display',
+                    'color' : 'red',
+                    'message' : {
+                        'type' : 'status.device.hallway',
+                        'update': 'function(id, type, time, msg) { $(id).removeClass("bg-color-green");$(id).removeClass("bg-color-red");$(id).addClass("bg-color-" + (msg.alive?"green":"red")); $(id + " span").html("is <b>" + (msg.alive?"alive":"DEAD") + "</b>"); }'
+                    }
+                },
+            ]
+        },
         
     ])
     .serve("/camera", __root + "/tmp/camera")

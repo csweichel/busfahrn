@@ -113,13 +113,13 @@
                             <script>
                                 $(function() { $("#knob{{this.id}}").knob({
                                     release: function(value) {
-                                        var marshal = {{{this.message.marshal}}};
+                                        var marshal = {{{func this.message.marshal}}};
                                         socket.emit('rangeUpdate{{this.id}}', marshal(value));
                                     }
                                 }); });
                                 
                                 socket.on('rangeUpdateView{{id}}', function (data) {
-                                    var unmarshal = {{{this.message.unmarshal}}};
+                                    var unmarshal = {{{func this.message.unmarshal}}};
                                     $('#knob{{id}}').val(unmarshal(data.type, data.time, data.msg)).trigger('change');
                                     updateLastMessageTime(data.time); 
                                 });
@@ -137,10 +137,10 @@
                             <script>
                                 socket.on('display{{id}}', function (data) {
                                     {{#if message.update}}
-                                    var update = {{{message.update}}};
+                                    var update = {{{func message.update}}};
                                     update('#displayAction{{id}}', data.type, data.time, data.msg);
                                     {{else}}
-                                    var unmarshal = {{{message.unmarshal}}};
+                                    var unmarshal = {{{func message.unmarshal}}};
                                     $('#display{{id}}').html(unmarshal(data.type, data.time, data.msg));
                                     {{/if}}
                                     updateLastMessageTime(data.time); 
@@ -149,7 +149,7 @@
                             {{#if message.marshal}}
                             <script>
                             function exec{{this.id}}() {
-                                var marshal = {{{this.message.marshal}}};
+                                var marshal = {{{func this.message.marshal}}};
                                 socket.emit('displayAction{{this.id}}', marshal( $("#display{{this.id}}").html() ));
                             }
                             
@@ -161,6 +161,35 @@
                         </div>
                     </div>
                     {{/type}}
+                    
+                    {{#type 'switches'}}
+                    <div id="displayAction{{id}}" class="tile {{#if color}}bg-color-{{color}}{{else}} {{/if}}{{#if size}} {{size}}{{/if}}">
+                        <div class="tile-content">
+                            <h4>{{{this.label}}}</h4>
+                            {{{this.desc}}}
+                            <br />
+                            {{#each messages}}
+                            <label class="input-control switch" id="switch{{id}}">
+                                <input type="checkbox" />
+                                <span class="helper">{{{label}}}</span>
+                            </label>
+                            
+                            <script>
+                                socket.on('switch{{id}}', function (data) {
+                                    var unmarshal = {{{func unmarshal}}};
+                                    $('#switch{{id}} :checkbox').prop({'checked': unmarshal(data.type, data.time, data.msg)});
+                                    updateLastMessageTime(data.time); 
+                                });
+                                $(function() { $("#switch{{id}} :checkbox").bind('change', function() {
+                                        var marshal = {{{func marshal}}};
+                                        socket.emit('switchAction{{id}}', marshal( $(this).is(":checked") ));
+                                }); });
+                            </script>
+                            {{/each}}
+                        </div>
+                    </div>
+                    {{/type}}
+                    
                 {{/each}}
             </div>
         {{/each}}

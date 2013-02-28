@@ -10,7 +10,16 @@ module.exports = function(inference, bus, redis) {
                 bus.post('act.heating.central', { 'level' : '5' });
                 break;
             case "off":
-                bus.post('act.outlets.lrDesk', { 'command' : 'off' });
+                ['act.outlets.lr.audio',
+                 'act.outlets.lr.desk',
+                 'act.outlets.lr.workspace',
+                 'act.outlets.hw.lamp', 
+                 'act.outlets.lr.projector',
+                 'act.outlets.br.smalllamp',
+                 'act.outlets.br.mainlamp'
+                ].forEach(function(e) {
+                    bus.post(e, { 'command' : 'off' }); 
+                });
                 bus.post('act.heating.central', { 'level' : '1' });
                 break;
         }
