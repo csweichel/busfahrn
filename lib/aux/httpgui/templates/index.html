@@ -73,12 +73,21 @@
         <div class="page-region">
         <div class="page-region-content tiles">
         {{#each config}}
-             <div class="tile-group">
+             <div id="group{{id}}" class="tile-group">
                 <h3>{{label}}</h3>
+                {{#each listeners}}
+                <script>
+                    socket.on('{{this.type}}', function(data) {
+                        var f = {{{func listener}}};
+                        f(data.type, data.time, data.msg);
+                    });
+                </script>
+                {{/each}}
+                
                 {{#each widgets}}
                     {{#type 'action'}}
                     {{#if icon}}
-                    <div id="action{{id}}" class="tile{{#if color}} bg-color-{{color}}{{/if}}{{#if size}} {{size}}{{/if}} icon">
+                    <div id="tile{{id}}" class="tile{{#if color}} bg-color-{{color}}{{/if}}{{#if size}} {{size}}{{/if}} icon">
                         <div class="tile-content">
                             <i class="icon-{{icon}}">&nbsp;</i>
                         </div>
@@ -87,7 +96,7 @@
                         </div>
                     </div>
                     {{else}}
-                    <div id="action{{id}}" class="tile{{#if color}} bg-color-{{color}}{{/if}}{{#if size}} {{size}}{{/if}}">
+                    <div id="tile{{id}}" class="tile{{#if color}} bg-color-{{color}}{{/if}}{{#if size}} {{size}}{{/if}}">
                         <div class="tile-content">
                             <h4>{{this.label}}</h4>
                             {{this.desc}}
@@ -99,17 +108,17 @@
                     </div>
                     {{/if}}
                     
-                    <script>$(function() { $("#action{{this.id}}").click(function(value) {
+                    <script>$(function() { $("#tile{{this.id}}").click(function(value) {
                         socket.emit('action{{this.id}}', "");
                     }); })</script>
                     {{/type}}
                     
                     {{#type 'range'}}
-                    <div class="tile {{#if color}}bg-color-{{color}}{{else}}bg-color-orange{{/if}}{{#if size}} {{size}}{{/if}}">
+                    <div id="tile{{this.id}}" class="tile {{#if color}}bg-color-{{color}}{{else}}bg-color-orange{{/if}}{{#if size}} {{size}}{{/if}}">
                         <div class="tile-content">
                             <h4>{{this.label}}</h4>
                             {{this.desc}}
-                            <input id="knob{{this.id}}" data-width="100" data-min="{{this.range.from}}" data-displayPrevious="true" data-max="{{this.range.to}}" data-fgColor="#222222" data-thickness=".5" />
+                            <input id="knob{{this.id}}" data-width="100" data-min="{{this.range.from}}" data-displayPrevious="true" data-max="{{this.range.to}}" data-fgColor="#222222" data-thickness=".5"  disabled="disabled" />
                             <script>
                                 $(function() { $("#knob{{this.id}}").knob({
                                     release: function(value) {
@@ -129,7 +138,7 @@
                     {{/type}}
                     
                     {{#type 'display'}}
-                    <div id="displayAction{{id}}" class="tile {{#if color}}bg-color-{{color}}{{else}}bg-color-blue{{/if}}{{#if size}} {{size}}{{/if}}">
+                    <div id="tile{{id}}" class="tile {{#if color}}bg-color-{{color}}{{else}}bg-color-blue{{/if}}{{#if size}} {{size}}{{/if}}">
                         <div class="tile-content">
                             <h4>{{{this.label}}}</h4>
                             <span id="display{{id}}">&nbsp; {{{this.desc}}}</span>
@@ -138,7 +147,7 @@
                                 socket.on('display{{id}}', function (data) {
                                     {{#if message.update}}
                                     var update = {{{func message.update}}};
-                                    update('#displayAction{{id}}', data.type, data.time, data.msg);
+                                    update('#tile{{id}}', data.type, data.time, data.msg);
                                     {{else}}
                                     var unmarshal = {{{func message.unmarshal}}};
                                     $('#display{{id}}').html(unmarshal(data.type, data.time, data.msg));
@@ -153,7 +162,7 @@
                                 socket.emit('displayAction{{this.id}}', marshal( $("#display{{this.id}}").html() ));
                             }
                             
-                            $(function() { $("#displayAction{{this.id}}").click(function(value) {
+                            $(function() { $("#tile{{this.id}}").click(function(value) {
                                 exec{{this.id}}();
                             }); })
                             </script>
@@ -163,7 +172,7 @@
                     {{/type}}
                     
                     {{#type 'switches'}}
-                    <div id="displayAction{{id}}" class="tile {{#if color}}bg-color-{{color}}{{else}} {{/if}}{{#if size}} {{size}}{{/if}}">
+                    <div id="tile{{id}}" class="tile {{#if color}}bg-color-{{color}}{{else}} {{/if}}{{#if size}} {{size}}{{/if}}">
                         <div class="tile-content">
                             <h4>{{{this.label}}}</h4>
                             {{{this.desc}}}

@@ -13,16 +13,20 @@ module.exports = function(bus, history) {
     
     return new io_httpgui(bus, [
         {
-            'uid' : 'profiles',
+            'id' : 'profiles',
             'label' : 'Profiles',
+            'listeners' : [
+                { type: 'profiles.enable', listener : function(type, time, msg) {  $('#groupprofiles .tile').removeClass('selected'); $('#tile' + msg.profile).addClass("selected"); } }
+            ],
             'widgets' : [
                 {
-                    'id'      : 'activeProfile',
-                    'label'   : 'Active profile',
-                    'color'   : 'purple',
+                    'id'      : 'all',
+                    'label'   : 'Light all',
+                    'color'   : 'orange',
                     'size'    : 'double-vertical',
-                    'type'    : 'display',
-                    'message' : { 'type' : 'profiles.enable', 'unmarshal' : function(type, time, msg) { return msg.profile; } }
+                    'type'    : 'action',
+                    'icon'    : 'rocket',
+                    'message' : { 'type' : 'profiles.enable', 'body' : { profile: 'all' } }
                 },
                 {
                     'id'      : 'home',
@@ -47,7 +51,7 @@ module.exports = function(bus, history) {
                     'label'   : 'Bed',
                     'desc'    : 'hit this before going to bed',
                     'icon'    : 'moon',
-                    'color'   : 'blue',
+                    'color'   : 'greenLight',
                     'type'    : 'action',
                     'message' : { 'type' : 'profiles.enable', 'body' : { profile: 'bed' } }
                 },
@@ -66,6 +70,7 @@ module.exports = function(bus, history) {
                     'desc'    : 'shut the place down',
                     'color'   : 'darken', 
                     'type'    : 'action',
+                    'icon'    : 'switch',
                     'message' : { 'type' : 'profiles.enable', 'body' : { profile: 'off' } }
                 }
             ]
