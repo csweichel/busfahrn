@@ -1,6 +1,7 @@
 var Bus        = require('./lib/bus.js'),
     Inference  = require('./lib/inference.js'),
-    IO         = require('./lib/io.js')
+    IO         = require('./lib/io.js'),
+    fs         = require('fs')
 ;
 
 global.__root   = __dirname;
@@ -24,6 +25,18 @@ if(history === undefined) {
     var inference = new Inference(main_bus);
     inference.load(__dirname + '/config/rules.d/', history);
 }
+
+{
+    var rcdir = __config + 'rc.d/';
+    fs.readdirSync(rcdir)
+        .filter(function(file) { return file.charAt(0) !== "." && /js$/.test(file); })
+        .sort()
+        .forEach(function(file) {
+            console.log("[RC.D] running " + file);
+            require(rcdir + file)(main_bus);
+        });
+}
+
 
 console.timeEnd("[STARTUP] ");
 
