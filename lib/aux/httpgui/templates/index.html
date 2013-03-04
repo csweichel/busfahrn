@@ -52,6 +52,9 @@
                 $('#socketDetails').html("last activity: <time class=\"timeago\" datetime=\"" + date.toISOString() + "\">" + date.toISOString() + "</time>");
                 jQuery("time.timeago").timeago();
             }
+            
+            var plots = {};
+            var plotData = {};
         </script>
     </head>
     <body class="modern-ui">
@@ -212,21 +215,21 @@
                     </div>
                     <script>
                         {
-                            var plotData = [];
-                            var unmarshal = {{{func message.unmarshal}}};
-                            var plot = $.plot($("#plot{{id}}"), [plotData], { xaxis: { mode: "time", timeformat: "%d.%m %H:%M" }});
+                            plotData["{{id}}"] = [];
+                            plots["{{id}}"] = $.plot($("#plot{{id}}"), [plotData], { xaxis: { mode: "time", timeformat: "%H:%M" }});
                                 
                             socket.on('plot{{id}}', function(data) {
+                                var unmarshal = {{{func message.unmarshal}}};
                                 if(data instanceof Array) {
-                                    plotData = data.map(function(e, i) { 
+                                    plotData["{{id}}"] = data.map(function(e, i) { 
                                         return [e.time, unmarshal(e.type, e.time, e.msg)];
                                     });
                                 } else {
-                                    plotData = plotData.slice(1, plotData.length - 1).push([data.time, unmarshal(data.type, data.time, data.msg)]);
+                                    plotData["{{id}}"] = plotData["{{id}}"].slice(1, plotData["{{id}}"].length - 1).push([data.time, unmarshal(data.type, data.time, data.msg)]);
                                 }
-                                plot.setData([plotData]);
-                                plot.setupGrid();
-                                plot.draw();
+                                plots["{{id}}"].setData([plotData["{{id}}"]]);
+                                plots["{{id}}"].setupGrid();
+                                plots["{{id}}"].draw();
                             });
                         }
                     </script>
