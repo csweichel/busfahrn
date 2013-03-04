@@ -7,6 +7,8 @@
         <script src="/js/jquery.js"></script>
         <script src="/js/jquery.timeago.js"></script>
         <script src="/knob/jquery.knob.js"></script>
+        <script src="/flot/jquery.flot.js"></script>
+        <script src="/flot/jquery.flot.time.js"></script>
         <script src="/socket.io/socket.io.js"></script>
         
         <link href="/metro/css/modern.css" rel="stylesheet">
@@ -199,6 +201,36 @@
                     </div>
                     {{/type}}
                     
+                    
+                    {{#type 'plot'}}
+                    <div id="tile{{id}}" class="tile {{#if color}}bg-color-{{color}}{{else}} {{/if}}{{#if size}} {{size}}{{/if}}">
+                        <div class="tile-content">
+                            <h4>{{{this.label}}}</h4>
+                            {{{this.desc}}}
+                            <div id="plot{{id}}" style="height: 80%">&nbsp;</div>
+                        </div>
+                    </div>
+                    <script>
+                        {
+                            var plotData = [];
+                            var unmarshal = {{{func message.unmarshal}}};
+                            var plot = $.plot($("#plot{{id}}"), [plotData], { xaxis: { mode: "time", timeformat: "%d.%m %H:%M" }});
+                                
+                            socket.on('plot{{id}}', function(data) {
+                                if(data instanceof Array) {
+                                    plotData = data.map(function(e, i) { 
+                                        return [e.time, unmarshal(e.type, e.time, e.msg)];
+                                    });
+                                } else {
+                                    plotData = plotData.slice(1, plotData.length - 1).push([data.time, unmarshal(data.type, data.time, data.msg)]);
+                                }
+                                plot.setData([plotData]);
+                                plot.setupGrid();
+                                plot.draw();
+                            });
+                        }
+                    </script>
+                    {{/type}}
                 {{/each}}
             </div>
         {{/each}}

@@ -7,3 +7,6 @@
 [submodule "scripts/native_clients/parson"]
 	path = scripts/native_clients/parson
 	url = https://github.com/kgabis/parson
+[submodule "lib/aux/httpgui/flot"]
+	path = lib/aux/httpgui/flot
+	url = https://github.com/flot/flot

@@ -89,6 +89,17 @@ module.exports = function(bus, history) {
                         'unmarshal' : function(type, time, msg) { return msg.level; }
                     },
                     'range' : { 'from' : 0, 'to' : 8 }
+                },
+                {
+                    'id'      : 'temp',
+                    'label'   : 'Temperature',
+                    'type'    : 'plot',
+                    'size'    : 'triple',
+                    'message' : {
+                        'type'      : 'time.heating.central',
+                        'limit'     : 50,
+                        'unmarshal' : function(type, time, msg) { return msg.temp; }
+                    }
                 }
             ]
         },
