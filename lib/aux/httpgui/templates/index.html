@@ -15,6 +15,14 @@
         <link href="/metro/css/theme-dark.css" rel="stylesheet">
         <link href="/metro/css/modern-responsive.css" rel="stylesheet">
         
+        {{#if enableTerminal}}
+        <script src="/terminal/js/jquery.terminal-src.js"></script>
+        <script src="/terminal/js/jquery.mousewheel-min.js"></script>
+        <script src="/terminal/js/jquery.terminal.tilda.js"></script>
+        <script src="/terminal/js/jquery.terminal.busfahrn.js"></script>
+        <link href="/terminal/css/jquery.terminal.css" rel="stylesheet">
+        {{/if}}
+        
         <style>
             [class^="icon-"], [class*=" icon-"] {
                 display: block;
@@ -34,6 +42,9 @@
                 font-size: 150%;
                 height: 2em;
             }
+            .terminal {
+                background-color: rgba(0,0,0,0.75);
+            }
         </style>
         <script>
             var socket = io.connect();
@@ -47,6 +58,10 @@
                 socket.on('disconnect', function(){ $('#socketStatus').html("OFFLINE"); });
             });
             
+            {{#if enableTerminal}}
+            installTerminal();
+            {{/if}}
+            
             function updateLastMessageTime(time) {
                 var date = new Date(time);
                 $('#socketDetails').html("last activity: <time class=\"timeago\" datetime=\"" + date.toISOString() + "\">" + date.toISOString() + "</time>");
@@ -58,6 +73,7 @@
         </script>
     </head>
     <body class="modern-ui">
+        <div id="tilda"></div>
         <div class="page secondary fixed-header">
         <div class="page-header ">
             <div class="page-header-content">

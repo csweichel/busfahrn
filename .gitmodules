@@ -10,3 +10,6 @@
 [submodule "lib/aux/httpgui/flot"]
 	path = lib/aux/httpgui/flot
 	url = https://github.com/flot/flot
+[submodule "lib/aux/httpgui/jquery.terminal"]
+	path = lib/aux/httpgui/jquery.terminal
+	url = https://github.com/32leaves/jquery.terminal
