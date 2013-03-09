@@ -12,7 +12,7 @@
         <script src="/socket.io/socket.io.js"></script>
         
         <link href="/metro/css/modern.css" rel="stylesheet">
-        <link href="/metro/css/theme-dark.css" rel="stylesheet">
+        <!--link href="/metro/css/theme-dark.css" rel="stylesheet"-->
         <link href="/metro/css/modern-responsive.css" rel="stylesheet">
         
         {{#if enableTerminal}}
@@ -44,6 +44,12 @@
             }
             .terminal {
                 background-color: rgba(0,0,0,0.75);
+            }
+            .tile {
+                background-color: #38A3D4;
+            }
+            .input-control.switch .helper:before {
+                background-color: #EE5F5B;
             }
         </style>
         <script>
