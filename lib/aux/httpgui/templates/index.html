@@ -247,7 +247,8 @@
                                         return [e.time, unmarshal(e.type, e.time, e.msg)];
                                     });
                                 } else {
-                                    plotData["{{id}}"] = plotData["{{id}}"].slice(1, plotData["{{id}}"].length - 1).push([data.time, unmarshal(data.type, data.time, data.msg)]);
+                                    plotData["{{id}}"] = plotData["{{id}}"].slice(1);
+                                    plotData["{{id}}"].push([data.time, unmarshal(data.type, data.time, data.msg)]);
                                 }
                                 plots["{{id}}"].setData([plotData["{{id}}"]]);
                                 plots["{{id}}"].setupGrid();
