@@ -248,7 +248,8 @@
                                     });
                                 } else {
                                     plotData["{{id}}"] = plotData["{{id}}"].slice(1);
-                                    plotData["{{id}}"].push([data.time, unmarshal(data.type, data.time, data.msg)]);
+                                    plotData["{{id}}"].unshift([data.time, unmarshal(data.type, data.time, data.msg)]);
+                                    updateLastMessageTime(data.time); 
                                 }
                                 plots["{{id}}"].setData([plotData["{{id}}"]]);
                                 plots["{{id}}"].setupGrid();
