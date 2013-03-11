@@ -30,7 +30,10 @@
     "passport": "*",
     "passport-http": "*",
     "socket.io":"*",
-    "exec-sync" : "*"
+    "exec-sync" : "*",
+    "dox" : "*",
+    "handlebars" : "*",
+    "cosm" : "*"
   },
   "license": "MIT",
   "engines": {

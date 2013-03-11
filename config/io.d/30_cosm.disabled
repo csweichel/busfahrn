@@ -1,0 +1,9 @@
+
+var io_cosm  = require(__lib + 'io_cosm.js');
+
+module.exports = function(bus, modules) {
+    var streamid_demo = 1;
+    return new io_cosm(bus, 'YOUR_API_KEY', 'YOUR_FEED_ID')(function(io) {
+        io.listen('cosm.demo', function(type,time,msg) { return msg.value; }, streamid_demo);
+    });
+};
