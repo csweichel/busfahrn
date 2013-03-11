@@ -15,17 +15,28 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <asm/ioctls.h>
 
 #include "haltestelle.h"
-#define USE_SERIAL
+//define USE_SERIAL
+//define SERIAL_BAUDRATE B115200
+//define SERIAL_BAUDRATE B9600
+//define SERIAL_IS_A_FILE
+//define SERIAL_IS_A_ATH0
+
 
 #define MYPORT "4950"    // the port users will be connecting to
-#define MAXBUFLEN 100
+#define MAXBUFLEN 1024
+#define MIN(a,b) ((a) < (b) ? (a) : (b))
 
 int sockfd;
 char* busfarhn_host;
 int busfarhn_port;
+#ifdef SERIAL_IS_A_FILE
+FILE* serialfd;
+#else
 int serialfd;
+#endif
 char* designation;
 
 char* hs_designation() {
@@ -79,7 +90,12 @@ void serial_write(char* msg, ...) {
     vsnprintf(buffer, sizeof(buffer), msg, args);
     printf("SERIAL >> %s\n", buffer);
     #ifdef USE_SERIAL
+    #ifdef SERIAL_IS_A_FILE
+    fwrite(buffer, 1, strlen(buffer), serialfd);
+    fflush(serialfd);
+    #else
     write(serialfd, buffer, strlen(buffer));
+    #endif
     #endif
 
     va_end( args );
@@ -153,39 +169,73 @@ int main(int argc, char** argv) {
     /*global*/ busfarhn_port = atoi(argv[3]);
     char*      serialport    = argv[4];
 
+    printf("haltestelle built <%s %s>\n", __DATE__, __TIME__);
     /*global*/ sockfd = start_socket();
     if(connect_to_busfarhn(designation) != 0) {
         fprintf(stderr, "[ERROR] connecting to %s:%d failed\n", busfarhn_host, busfarhn_port);
         return -1;
     }
+#ifdef USE_SERIAL
+    #ifdef SERIAL_IS_A_FILE
+    printf("%s is a FILE\n", serialport);
+    #elif defined SERIAL_IS_A_ATH0
+    printf("%s is a SERIAL PORT (ATH style)\n", serialport);
+    #else
+    printf("%s is a SERIAL PORT\n", serialport);
+    #endif
+#else
+    printf("WARNING: NOT USING THE SERIAL PORT\n");
+#endif
     printf("[STARTUP] connected to %s:%i with designation %s\n", busfarhn_host, busfarhn_port, designation);
 
 #ifdef USE_SERIAL
-    /*global*/ serialfd = open (serialport, O_RDWR | O_NOCTTY | O_SYNC);
+    #ifdef SERIAL_IS_A_FILE
+    /*global*/ serialfd = fopen(serialport, "rw");
+    #elif defined SERIAL_IS_A_ATH0
+    /*global*/ serialfd = open(serialport, O_RDWR);
+    #else
+    /*global*/ serialfd = open(serialport, O_RDWR | O_NOCTTY | O_SYNC);
+    #endif
+    
     if (serialfd < 0) {
         fprintf(stderr, "error %d opening %s: %s", errno, serialport, strerror (errno));
         return;
     }
-    set_interface_attribs (serialfd, B9600, 0);  // set speed to 115,200 bps, 8n1 (no parity)
+
+    #if !(defined SERIAL_IS_A_FILE || defined SERIAL_IS_A_ATH0)
+    set_interface_attribs (serialfd, SERIAL_BAUDRATE, 0);  // set speed to 115,200 bps, 8n1 (no parity)
     set_blocking (serialfd, 0);                // set no blocking
+    #endif
 #endif
-    
+
     hs_startup();
 
     char serialbuf[MAXBUFLEN];
     unsigned int serialbufpos = 0;
 
     char netbuf[MAXBUFLEN];
-    int numbytes;
+    unsigned int netbufpos = 0;
+
     struct sockaddr_storage their_addr;
     socklen_t addr_len;
-
-    // add gracefull way to exit and disable PIR in the process
 
     while(1) {
 #ifdef USE_SERIAL
         // serial
-        int n = read (serialfd, (serialbuf + serialbufpos), MAXBUFLEN - (serialbufpos + 1));  // read up to 100 characters if ready to read
+        int n;
+        #ifdef SERIAL_IS_A_FILE
+        n = fread((serialbuf + serialbufpos), 1, MAXBUFLEN - (serialbufpos + 1), serialfd);
+        #elif defined SERIAL_IS_A_ATH0
+        size_t nbytes = 0;
+        ioctl(serialfd, FIONREAD, (char*)&nbytes);
+        if(nbytes > 0) {
+            n = read (serialfd, (serialbuf + serialbufpos), MIN(nbytes, MAXBUFLEN - (serialbufpos + 1)));
+        } else {
+            n = 0;
+        }
+        #else
+        n = read (serialfd, (serialbuf + serialbufpos), MAXBUFLEN - (serialbufpos + 1));
+        #endif
         if(n > 0) {
             printf("[SERIAL] %s\n", serialbuf);
 
@@ -204,17 +254,32 @@ int main(int argc, char** argv) {
 #endif
 
         // network
+        int numbytes;
         addr_len = sizeof their_addr;
-        if ((numbytes = recvfrom(sockfd, netbuf, MAXBUFLEN - 1, MSG_DONTWAIT, (struct sockaddr *)&their_addr, &addr_len)) > -1) {
-            if(numbytes == 0) break;
-
+        if ((numbytes = recvfrom(sockfd, (netbuf + netbufpos), MAXBUFLEN - (netbufpos + 1), MSG_DONTWAIT, (struct sockaddr *)&their_addr, &addr_len)) > 0) {
             printf("[NET] received %i bytes\n", numbytes);
-            netbuf[numbytes] = '\0';
 
-            printf("CMD <%s>\n", netbuf);
-            JSON_Value* json = json_parse_string(netbuf);
-            do_network(json, netbuf);
-            json_value_free(json);
+            int i = 0;
+            for(i = 0; i < numbytes; i++) if(netbuf[netbufpos + i] == '\n') break;
+            netbufpos += numbytes;
+
+            if(i < numbytes) {
+                // found breakline
+                netbuf[netbufpos - 1] = '\0';
+                netbufpos = 0;
+                
+                printf("CMD <%s>\n", netbuf);
+                JSON_Value* json = json_parse_string(netbuf);
+                do_network(json, netbuf);
+                json_value_free(json);
+            }
+
+            if(netbufpos + 1 == MAXBUFLEN) {
+                printf("[NET] ERROR: received %i bytes and still no breakline. Discarding the message.\n", MAXBUFLEN);
+                netbufpos = 0;
+            }
+        } else if(numbytes == 0) {
+            break;
         }
         
     }

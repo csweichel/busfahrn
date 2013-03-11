@@ -14,23 +14,35 @@ void hs_shutdown() {
 
 void do_serial(char* msg) {
 	if(msg[0] == 'D' && msg[1] == 'H' && msg[2] == 'T') {
-        network_write("{ \"type\":\"sensor.senseless.%s\", \"msg\": { \"c\":\"%s\" } }\n", hs_designation(), msg);
+        network_write("{ \"type\":\"sensor.senseless.%s\", \"msg\": { \"sensor\":\"DHT\", \"raw\":\"%s\" } }\n", hs_designation(), msg);
     } else if(msg[0] == 'P' && msg[1] == 'I' && msg[2] == 'R') {
         network_write("{ \"type\":\"sensor.senseless.%s\", \"msg\": { \"sensor\":\"motion\", \"status\":\"triggered\" } }\n", hs_designation());
+    } else if(msg[0] == 'L' && msg[1] == 'D' && msg[2] == 'R') {
+        network_write("{ \"type\":\"sensor.senseless.%s\", \"msg\": { \"sensor\":\"light\", \"raw\":\"%s\" } }\n", hs_designation(), msg);
     }
 }
 
+void write_preamble() {
+    serial_write("!!!!!!!!!!!!");
+}
+
 void execute_command(const char* msg) {
-    if(strcmp("refresh_temp", msg) == 0) {
-        serial_write("t");
+    printf("EXEC %s\n", msg);
+    if(strcmp("refresh_sensors", msg) == 0) {
+        write_preamble(); serial_write("r");
+        write_preamble(); serial_write("t");
+    } else if(strcmp("refresh_temp", msg) == 0) {
+        write_preamble(); serial_write("t");
+    } else if(strcmp("refresh_light", msg) == 0) {
+        write_preamble(); serial_write("r");
     } else if(strcmp("lamp_off", msg) == 0) {
-        serial_write("l");
+        write_preamble(); serial_write("l");
     } else if(strcmp("lamp_on", msg) == 0) {
-        serial_write("L");
+        write_preamble(); serial_write("L");
     } else if(strcmp("enable_pir", msg) == 0) {
-        serial_write("P");
+        write_preamble(); serial_write("P");
     } else if(strcmp("disable_pir", msg) == 0) {
-        serial_write("p");
+        write_preamble(); serial_write("p");
     }
 }
 
@@ -41,7 +53,7 @@ void do_network(JSON_Value* json, char* msg) {
 
         if(strcmp(msgtype, msg_type_sensor) == 0 || strcmp(msgtype, msg_type_actor) == 0) {
             const char* command = json_object_dotget_string(obj, "msg.command");
-            execute_command(command);            
+            if(command != 0) execute_command(command);            
         }
     }
 }

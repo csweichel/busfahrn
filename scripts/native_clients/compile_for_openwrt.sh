@@ -8,19 +8,19 @@ compile() {
 	GCC=$2
 
 	$GCC -c -I. -Iparson -o parson.o parson/parson.c
-	$GCC -c -I. -Iparson -o udp_serial.o udp_serial.c
-	for i in $(ls config/*.c); do
+	for i in $(ls config/*.h); do
 		bn=$(basename $i)
-		$GCC -c -I. -Iparson -o ${i%%.c}.o $i
-		$GCC -o bin/udphaltestelle.${bn%%.c}.$PREFIX ${i%%.c}.o parson.o udp_serial.o -lm
+		impl=$(cat $i | grep IMPLEMENTATION | cut -d ' ' -f 3)
+
+		echo "[CC] $bn $impl"
+
+		cat $i tcp_serial.c > .tcp_serial_build.c
+		$GCC -c -I. -Iparson -o tcp_serial.o .tcp_serial_build.c
+		rm .tcp_serial_build.c
+		$GCC -c -I. -Iparson -o config/${impl%%.c}.o config/$impl
+		$GCC -o bin/tcphaltestelle.${bn%%.h}.$PREFIX config/${impl%%.c}.o parson.o tcp_serial.o -lm
 	done
 
-	$GCC -c -I. -Iparson -o tcp_serial.o tcp_serial.c
-	for i in $(ls config/*.c); do
-		bn=$(basename $i)
-		$GCC -c -I. -Iparson -o ${i%%.c}.o $i
-		$GCC -o bin/tcphaltestelle.${bn%%.c}.$PREFIX ${i%%.c}.o parson.o tcp_serial.o -lm
-	done 
 }
 
 [ ! -d bin ] && mkdir bin

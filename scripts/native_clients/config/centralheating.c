@@ -21,7 +21,7 @@ void do_network(JSON_Value* json, char* msg) {
         
         if(strcmp(json_object_dotget_string(obj, "type"), "act.heating.central") == 0) {
             if(json_object_dotget_value(obj, "msg.level") != 0) {
-                int heatingLevel = (int)json_object_dotget_number(obj, "msg.level");
+                int heatingLevel = 9 - (int)json_object_dotget_number(obj, "msg.level");
                 printf("ACTING on cmd: %d\n", heatingLevel);
 
                 if(heatingLevel > 9) heatingLevel = 9;
