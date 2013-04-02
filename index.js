@@ -22,8 +22,8 @@ var history = io.get_module("history");
 if(history === undefined) {
     console.log("inference support DISABLED as no history module is loaded");
 } else {
-    var inference = new Inference(main_bus);
-    inference.load(__dirname + '/config/rules.d/', history);
+    var inference = new Inference(main_bus, history);
+    inference.load(__dirname + '/config/rules.d/');
 }
 
 {
