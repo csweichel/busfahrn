@@ -68,6 +68,23 @@
             installTerminal();
             {{/if}}
             
+            socket.on('notification', function(data) {
+                if(!(data instanceof Array)) data = [ data ];
+                
+                data.forEach(function(notificationData) {
+                    var notification = $('#protoNotification').clone().css({ 'display': 'inherit' }).attr('id', null).prependTo('#notificationSpace');
+                    $('.needs-bg-color', notification).addClass({
+                        "notification.info"      : "bg-color-green",
+                        "notification.warning"   : "bg-color-yellow",
+                        "notification.error"     : "bg-color-red",
+                        "notification.attention" : "bg-color-red"
+                    }[notificationData.type] || "bg-color-darken");
+                    $('.notice-header', notification).html(notificationData.msg.subject || "Notification");
+                    $('.notice-text', notification).html(notificationData.msg.message);
+                    $('.close', notification).click(function() { notification.hide(); })
+                });
+            });
+            
             function updateLastMessageTime(time) {
                 var date = new Date(time);
                 $('#socketDetails').html("last activity: <time class=\"timeago\" datetime=\"" + date.toISOString() + "\">" + date.toISOString() + "</time>");
@@ -81,7 +98,8 @@
     <body class="modern-ui">
         <div id="tilda"></div>
         <div class="page secondary fixed-header">
-        <div class="page-header ">
+        
+        <div class="page-header">
             <div class="page-header-content">
                 <div class="user-login">
                     <a href="#">
@@ -98,7 +116,24 @@
         </div>
     
         <div class="page-region">
-        <div class="page-region-content tiles">
+        <div class="page-region-content tiles">    
+        
+        <div class="grid">
+            <div class="row" id="notificationSpace">
+                <div class="span5" id="protoNotification" style="display:none">
+                    <div class="notices">
+                        <div class="needs-bg-color">
+                            <a href="#" class="close"></a>
+                            <div class="notice-image"> <img src="metro/public/images/Mail128.png" /> </div>
+                            <div class="notice-header fg-color-white"> ... </div>
+                            <div class="notice-text"> ... </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+
         {{#each config}}
              <div id="group{{id}}" class="tile-group">
                 <h3>{{label}}</h3>
