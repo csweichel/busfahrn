@@ -12,5 +12,6 @@ void hs_startup();
 void hs_shutdown();
 void do_serial(char* msg);
 void do_network(JSON_Value* json, char* msg);
+void do_ping();
 
 #endif

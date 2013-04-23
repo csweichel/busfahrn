@@ -17,6 +17,8 @@
 #include <fcntl.h>
 #include <asm/ioctls.h>
 
+#include <pthread.h>
+
 #include "haltestelle.h"
 //define USE_SERIAL
 //define SERIAL_BAUDRATE B115200
@@ -157,8 +159,67 @@ void set_blocking (int fd, int should_block) {
         fprintf(stderr, "error %d setting term attributes", errno);
 }
 
+/*
+ * taken from: http://stackoverflow.com/questions/122616/how-do-i-trim-leading-trailing-whitespace-in-a-standard-way
+ */
+char *trimwhitespace(char *str) {
+  char *end;
+
+  // Trim leading space
+  while(isspace(*str)) str++;
+
+  if(*str == 0)  // All spaces?
+    return str;
+
+  // Trim trailing space
+  end = str + strlen(str) - 1;
+  while(end > str && isspace(*end)) end--;
+
+  // Write new null terminator
+  *(end+1) = 0;
+
+  return str;
+}
+
+char serialbuf[MAXBUFLEN];
+unsigned int serialbufpos = 0;
+void *thread_read_serial(void *arg) {
+    while(1) {
+        // serial
+        int n;
+        #ifdef SERIAL_IS_A_FILE
+        n = fread((serialbuf + serialbufpos), 1, MAXBUFLEN - (serialbufpos + 1), serialfd);
+        #else
+        n = read (serialfd, (serialbuf + serialbufpos), MAXBUFLEN - (serialbufpos + 1));
+        printf("[SERIAL READING] %d bytes\n", n);
+        #endif
+        if(n > 0) {
+            printf("[SERIAL] %s\n", serialbuf);
+
+            int i = 0;
+            for(i = 0; i < n; i++) if(serialbuf[serialbufpos + i] == '\n') break;
+            serialbufpos += n;
+
+            if(i < n) {
+                // found breakline
+                serialbuf[serialbufpos - 1] = '\0';
+                trimwhitespace(serialbuf);
+                serialbufpos = 0;
+                
+                do_serial(serialbuf);
+            }
+        }
+    }
+}
+
+#ifndef CUSTOM_PING
+void do_ping() {
+    network_write("{ \"type\":\"io.tcp.pong\", \"msg\":{\"name\":\"%s\"} }", hs_designation());
+}
+#endif
 
 int main(int argc, char** argv) {
+    printf("haltestelle built <%s %s> version %s\n", __DATE__, __TIME__, VERSION);
     if(argc < 5) {
         fprintf(stderr, "usage: %s <designation> <busfarhn_host> <busfarhn_port> <serialport>\n", argv[0]);
         exit(-1);
@@ -169,7 +230,6 @@ int main(int argc, char** argv) {
     /*global*/ busfarhn_port = atoi(argv[3]);
     char*      serialport    = argv[4];
 
-    printf("haltestelle built <%s %s>\n", __DATE__, __TIME__);
     /*global*/ sockfd = start_socket();
     if(connect_to_busfarhn(designation) != 0) {
         fprintf(stderr, "[ERROR] connecting to %s:%d failed\n", busfarhn_host, busfarhn_port);
@@ -210,49 +270,18 @@ int main(int argc, char** argv) {
 
     hs_startup();
 
-    char serialbuf[MAXBUFLEN];
-    unsigned int serialbufpos = 0;
-
     char netbuf[MAXBUFLEN];
     unsigned int netbufpos = 0;
 
     struct sockaddr_storage their_addr;
     socklen_t addr_len;
 
-    while(1) {
 #ifdef USE_SERIAL
-        // serial
-        int n;
-        #ifdef SERIAL_IS_A_FILE
-        n = fread((serialbuf + serialbufpos), 1, MAXBUFLEN - (serialbufpos + 1), serialfd);
-        #elif defined SERIAL_IS_A_ATH0
-        size_t nbytes = 0;
-        ioctl(serialfd, FIONREAD, (char*)&nbytes);
-        if(nbytes > 0) {
-            n = read (serialfd, (serialbuf + serialbufpos), MIN(nbytes, MAXBUFLEN - (serialbufpos + 1)));
-        } else {
-            n = 0;
-        }
-        #else
-        n = read (serialfd, (serialbuf + serialbufpos), MAXBUFLEN - (serialbufpos + 1));
-        #endif
-        if(n > 0) {
-            printf("[SERIAL] %s\n", serialbuf);
-
-            int i = 0;
-            for(i = 0; i < n; i++) if(serialbuf[serialbufpos + i] == '\n') break;
-            serialbufpos += n;
-
-            if(i < n) {
-                // found breakline
-                serialbuf[serialbufpos - 1] = '\0';
-                serialbufpos = 0;
-                
-                do_serial(serialbuf);
-            }
-        }
+    pthread_t pth;
+    pthread_create(&pth, NULL, thread_read_serial, NULL);
 #endif
 
+    while(1) {
         // network
         int numbytes;
         addr_len = sizeof their_addr;
@@ -270,7 +299,15 @@ int main(int argc, char** argv) {
                 
                 printf("CMD <%s>\n", netbuf);
                 JSON_Value* json = json_parse_string(netbuf);
-                do_network(json, netbuf);
+
+                if(json_value_get_type(json) == JSONObject) {
+                    JSON_Object* obj = json_value_get_object(json);
+                    const char* msgtype = json_object_dotget_string(obj, "type");
+                    
+                    if(strcmp(msgtype, "io.tcp.ping") == 0) do_ping();
+                    else                                    do_network(json, netbuf);
+                }
+
                 json_value_free(json);
             }
 

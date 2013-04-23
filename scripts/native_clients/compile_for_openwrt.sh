@@ -17,8 +17,10 @@ compile() {
 		cat $i tcp_serial.c > .tcp_serial_build.c
 		$GCC -c -I. -Iparson -o tcp_serial.o .tcp_serial_build.c
 		rm .tcp_serial_build.c
-		$GCC -c -I. -Iparson -o config/${impl%%.c}.o config/$impl
-		$GCC -o bin/tcphaltestelle.${bn%%.h}.$PREFIX config/${impl%%.c}.o parson.o tcp_serial.o -lm
+		cat $i config/$impl > .impl.c
+		$GCC -c -I. -Iparson -o config/${impl%%.c}.o .impl.c
+		rm .impl.c
+		$GCC -o bin/tcphaltestelle.${bn%%.h}.$PREFIX config/${impl%%.c}.o parson.o tcp_serial.o -lm -lpthread
 	done
 
 }
