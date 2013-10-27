@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<menu uid="M0001">
+    <menu label="Profiles" uid="M0002">
+        <command uid="C0001" label="All" type="profiles.enable" message="{ &quot;profile&quot; : &quot;all&quot; }" />
+        <command uid="C0002" label="Work" type="profiles.enable" message="{ &quot;profile&quot; : &quot;work&quot; }" />
+        <command uid="C0003" label="Good Night" type="profiles.enable" message="{ &quot;profile&quot; : &quot;bed&quot; }" />
+        <command uid="C0004" label="Sleep" type="profiles.enable" message="{ &quot;profile&quot; : &quot;sleep&quot; }" />
+        <command uid="C0005" label="Off" type="profiles.enable" message="{ &quot;profile&quot; : &quot;off&quot; }" />
+    </menu>
+    <menu label="Living Room" uid="M0003">
+        <switch uid="C0006" label="Lamp" type="act.outlets.livingroom.lamp" />
+        <switch uid="C0007" label="Audio" type="act.outlets.lr.audio" />
+        <switch uid="C0008" label="Desk" type="act.outlets.lr.desk" />
+        <switch uid="C0009" label="Workspace" type="act.outlets.lr.workspace" />
+    </menu>
+    <menu label="Bedroom" uid="M0004">
+        <switch uid="C0010" label="Lamp" type="act.outlets.bedroom.lamp" />
+        <switch uid="C0011" label="Small lamp" type="act.outlets.br.smalllamp" />
+    </menu>
+    <menu label="Hallway" uid="M0005">
+        <switch uid="C0012" label="Lamp" type="act.outlets.hallway.lamp" />
+        <switch uid="C0013" label="Projector" type="act.outlets.hw.projector" />
+    </menu>
+    <switch uid="C0014" label="Kitchen" type="act.outlets.kitchen.lamp" />
+</menu>

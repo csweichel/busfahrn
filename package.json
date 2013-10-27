@@ -33,7 +33,9 @@
     "exec-sync" : "*",
     "dox" : "*",
     "handlebars" : "*",
-    "cosm" : "*"
+    "cosm" : "*",
+    "xmldom" : "*",
+    "xpath" : "*"
   },
   "license": "MIT",
   "engines": {
